@@ -10,10 +10,12 @@ import {
   Settings,
   Menu,
   X,
-  Plus
+  Plus,
+  Zap
 } from 'lucide-react';
 import AuthEntry from './AuthEntry';
 import { useSupabase } from '../context/SupabaseContext';
+import { Button, LoadingSpinner } from './ui';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -36,7 +38,7 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <LoadingSpinner size="lg" text="Loading LeadForge Base..." />
       </div>
     );
   }
@@ -52,12 +54,17 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-surface shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-secondary/10">
-          <h1 className="text-xl font-semibold text-primary">LeadForge Base</h1>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-surface shadow-xl border-r border-secondary/10 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
+        <div className="flex items-center justify-between h-16 px-6 border-b border-secondary/10 bg-gradient-subtle">
+          <div className="flex items-center">
+            <div className="p-2 bg-gradient-primary rounded-lg mr-3">
+              <Zap className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-xl font-bold gradient-text">LeadForge Base</h1>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-md hover:bg-secondary/5"
+            className="lg:hidden p-2 rounded-md hover:bg-secondary/5 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -71,15 +78,20 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
                 <li key={item.name}>
                   <Link
                     to={item.href}
-                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors ${
+                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
                       isActive
-                        ? 'bg-primary text-white'
-                        : 'text-secondary hover:bg-secondary/5'
+                        ? 'bg-gradient-primary text-white shadow-button'
+                        : 'text-secondary hover:bg-secondary/5 hover:text-primary'
                     }`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <item.icon className="h-5 w-5 mr-3" />
-                    {item.name}
+                    <item.icon className={`h-5 w-5 mr-3 transition-colors ${
+                      isActive ? 'text-white' : 'text-secondary/60 group-hover:text-primary'
+                    }`} />
+                    <span className="font-medium">{item.name}</span>
+                    {isActive && (
+                      <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    )}
                   </Link>
                 </li>
               );
@@ -91,22 +103,21 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Header */}
-        <header className="bg-surface shadow-sm border-b border-secondary/10">
+        <header className="bg-surface shadow-sm border-b border-secondary/10 backdrop-blur-sm bg-surface/95">
           <div className="flex items-center justify-between h-16 px-6">
             <div className="flex items-center">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-md hover:bg-secondary/5"
+                className="lg:hidden p-2 rounded-lg hover:bg-secondary/5 transition-colors"
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <Link
-                to="/campaigns"
-                className="ml-4 btn btn-primary flex items-center"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Campaign
-              </Link>
+              <Button asChild className="ml-4">
+                <Link to="/campaigns">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Campaign
+                </Link>
+              </Button>
             </div>
             
             <div className="flex items-center space-x-4">
